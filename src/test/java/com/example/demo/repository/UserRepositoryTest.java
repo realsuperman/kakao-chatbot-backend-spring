@@ -3,9 +3,11 @@ package com.example.demo.repository;
 import com.example.demo.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
+@SpringBootTest
 class UserRepositoryTest {
     @Autowired
     UserRepository userRepository;

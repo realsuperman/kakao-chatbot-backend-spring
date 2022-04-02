@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
@@ -15,9 +16,10 @@ import javax.persistence.Table;
 @Entity
 @Table(name="user")
 @IdClass(UserKey.class) // 키를 따로 복합키 클래스로 사용한다고 지정
-public class User {
+public class User implements Serializable {
     @Id
     private String id;
     @Id
     private String fav_repository;
+    private String user_get_date;
 }
