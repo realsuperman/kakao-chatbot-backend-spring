@@ -6,7 +6,7 @@ import com.example.demo.repository.StorageRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+//@Transactional
 public class StorageService {
     private final StorageRepository storageRepository;
 
