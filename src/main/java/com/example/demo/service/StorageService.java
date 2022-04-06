@@ -2,9 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.domain.Storage;
 import com.example.demo.domain.User;
+import com.example.demo.domain.UserKey;
 import com.example.demo.repository.StorageRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 //@Transactional
 public class StorageService {
@@ -17,6 +20,10 @@ public class StorageService {
     public String join(Storage storage){
         storageRepository.save(storage);
         return storage.getFav_repository();
+    }
+
+    public Optional<Storage> find(Storage storage){
+        return storageRepository.findById(storage.getFav_repository());
     }
 
 }

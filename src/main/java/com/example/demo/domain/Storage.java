@@ -1,15 +1,20 @@
 package com.example.demo.domain;
 
+
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="repository")
 public class Storage {
     @Id
     String fav_repository;
+    @NotNull
     String git_api_address;
+    @NotNull
     String git_updated_at;
 
     public String getFav_repository() {

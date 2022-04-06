@@ -17,8 +17,14 @@ public class SaveService {
     }
 
     public void join(Storage storage, User user){
-        userService.join(user);
-        storageService.join(storage);
+        /* https://api.github.com/repos/realsuperman/spring-project/branches/master
+           컨트롤러쪽에서 https://api.github.com/repos/아이디
+
+
+
+         */
+        /*userService.join(user);
+        storageService.join(storage);*/
     }
 }
 
