@@ -7,6 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @RestController
 public class SaveController {
@@ -24,21 +29,31 @@ public class SaveController {
         user.setFav_repository(favRepository+"/branches"+branch);
         Storage storage = new Storage();
         storage.setFav_repository(favRepository+"/branches"+branch);
-        getUrlParser(favRepository,branch);
-        saveService.join(storage,user);
+        storage.setGit_api_address(getUrlParser(favRepository,branch));
+        storage.setGit_updated_at(getUpdatedAt(storage.getGit_api_address()));
+        //storage.setGit_updated_at(getUpdatedAt("ev"));
+        OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        user.setUser_get_date(fmt.format(utc));
+        //saveService.join(storage,user);
         return user; //스프링이 자동으로 JSON타입으로 반환해서 전달한다.*/
     }
 
     public static String getUrlParser(String fav_repository,String branch){
-
-        /* url : https://github.com/realsuperman/spring-project
-           branch : master
-         */
-        /*index = fav_repository.find('github')
-        url = fav_repository[index:]
-        index = url.find("/")
-        url = "https://api.github.com/repos"+url[index:]+"/branches/"+branch*/
-        return null;
+        int index = fav_repository.indexOf("github");
+        String url = fav_repository.substring(index);
+        index = url.indexOf("/");
+        url = "https://api.github.com/repos"+url.substring(index)+"/branches/"+branch;
+        return url;
     }
 
+    public static String getUpdatedAt(String url){
+        String mono = WebClient.create().get()
+            .uri(url)
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
+        System.out.println(mono);
+        return null;
+    }
 }
