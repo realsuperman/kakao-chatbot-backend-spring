@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.aop.RestException;
 import com.example.demo.domain.Storage;
 import com.example.demo.domain.User;
 import com.example.demo.service.SaveService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,7 +33,6 @@ public class SaveController {
         storage.setFav_repository(favRepository+"/branches"+branch);
         storage.setGit_api_address(getUrlParser(favRepository,branch));
         storage.setGit_updated_at(getUpdatedAt(storage.getGit_api_address()));
-        //storage.setGit_updated_at(getUpdatedAt("ev"));
         OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
         user.setUser_get_date(fmt.format(utc));
@@ -50,10 +51,18 @@ public class SaveController {
     public static String getUpdatedAt(String url){
         String mono = WebClient.create().get()
             .uri(url)
+
             .retrieve()
+            .onStatus(HttpStatus::is4xxClientError, response -> {
+                throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 혹은 브랜치 정보가 이상합니다");
+             })
+            .onStatus(HttpStatus::is5xxServerError, response -> {
+                throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 혹은 브랜치 정보가 이상합니다");
+            })
             .bodyToMono(String.class)
             .block();
-        System.out.println(mono);
-        return null;
+
+        //updated_at = jsonObject.get("commit").get("commit").get("committer").get("date")
+        return mono;
     }
 }
