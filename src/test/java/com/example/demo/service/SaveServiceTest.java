@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @SpringBootTest
-//@Transactional
+@Transactional
 class SaveServiceTest {
     @Autowired
     SaveService saveService;
@@ -21,20 +21,11 @@ class SaveServiceTest {
         User user = new User();
         Storage storage = new Storage();
         user.setId("tjdgns461");
-        user.setFav_repository("test");
+        user.setFav_repository("https://github.com/realsuperman/spring-project/branches/master");
         user.setUser_get_date("20200101");
-        storage.setFav_repository("test");
-        storage.setGit_api_address("test");
+        storage.setFav_repository("https://github.com/realsuperman/spring-project/branches/master");
+        storage.setGit_api_address("https://api.github.com/repos/realsuperman/spring-project/branches/master");
         storage.setGit_updated_at("test");
         saveService.join(storage,user);
-    }
-
-    @Test
-    void find(){
-        Storage storage = new Storage();
-        storage.setFav_repository("test");
-        storage.setGit_api_address("test");
-        storage.setGit_updated_at("test");
-        System.out.println(storageService.find(storage));
     }
 }

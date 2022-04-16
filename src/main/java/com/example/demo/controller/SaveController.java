@@ -4,6 +4,9 @@ import com.example.demo.aop.RestException;
 import com.example.demo.domain.Storage;
 import com.example.demo.domain.User;
 import com.example.demo.service.SaveService;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,15 +31,15 @@ public class SaveController {
     public User create(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch) throws Exception {
         User user = new User();
         user.setId(userId);
-        user.setFav_repository(favRepository+"/branches"+branch);
+        user.setFav_repository(favRepository+"/branches/"+branch);
         Storage storage = new Storage();
-        storage.setFav_repository(favRepository+"/branches"+branch);
+        storage.setFav_repository(favRepository+"/branches/"+branch);
         storage.setGit_api_address(getUrlParser(favRepository,branch));
         storage.setGit_updated_at(getUpdatedAt(storage.getGit_api_address()));
         OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
         user.setUser_get_date(fmt.format(utc));
-        //saveService.join(storage,user);
+        saveService.join(storage,user);
         return user; //스프링이 자동으로 JSON타입으로 반환해서 전달한다.*/
     }
 
@@ -51,7 +54,7 @@ public class SaveController {
     public static String getUpdatedAt(String url){
         String mono = WebClient.create().get()
             .uri(url)
-
+            .header("Authorization", "token tempvalue")
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, response -> {
                 throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 혹은 브랜치 정보가 이상합니다");
@@ -61,8 +64,15 @@ public class SaveController {
             })
             .bodyToMono(String.class)
             .block();
-
-        //updated_at = jsonObject.get("commit").get("commit").get("committer").get("date")
-        return mono;
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject elem = (JSONObject) parser.parse(mono);
+            elem = (JSONObject) elem.get("commit");
+            elem = (JSONObject) elem.get("commit");
+            elem = (JSONObject) elem.get("committer");
+            return elem.get("date").toString();
+        } catch (ParseException e) {
+            throw new RestException(HttpStatus.NOT_FOUND, "JSON 파싱 실패 오류.");
+        }
     }
 }
