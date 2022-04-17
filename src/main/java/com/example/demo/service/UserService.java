@@ -4,6 +4,8 @@ import com.example.demo.aop.RestException;
 import com.example.demo.domain.User;
 import com.example.demo.domain.UserKey;
 import com.example.demo.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 
 import javax.transaction.Transactional;
@@ -12,14 +14,16 @@ import java.util.Optional;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public String join(User user){
         if(checkUser(user).isPresent()) throw new RestException(HttpStatus.NOT_FOUND, "유저 정보가 존재합니다.");
+        logger.info("INFO Level 테스트"+user.getId());
         userRepository.save(user);
+        logger.info("INFO Level 테스트"+user.getId());
         return user.getId();
     }
 

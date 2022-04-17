@@ -2,8 +2,6 @@ package com.example.demo.service;
 
 import com.example.demo.domain.Storage;
 import com.example.demo.domain.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SaveService {
     private final UserService userService;
     private final StorageService storageService;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public SaveService(UserService userService, StorageService storageService) {
         this.userService = userService;
