@@ -5,11 +5,10 @@ import com.example.demo.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @SpringBootTest
-@Transactional
+//@Transactional
 class SaveServiceTest {
     @Autowired
     SaveService saveService;
@@ -30,5 +29,6 @@ class SaveServiceTest {
         storage.setGit_updated_at("test");
         saveService.join(storage,user);*/
         userService.join(user);
+        //storageService.join(storage);
     }
 }

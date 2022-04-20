@@ -21,9 +21,7 @@ public class UserService {
 
     public String join(User user){
         if(checkUser(user).isPresent()) throw new RestException(HttpStatus.NOT_FOUND, "유저 정보가 존재합니다.");
-        logger.info("INFO Level 테스트"+user.getId());
         userRepository.save(user);
-        logger.info("INFO Level 테스트"+user.getId());
         return user.getId();
     }
 
