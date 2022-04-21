@@ -28,7 +28,11 @@ public class SaveController {
     }
 
     @PostMapping("/save")
-    public User create(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch) throws Exception {
+    public User create(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch) {
+        if(" ".equals(userId)||"".equals(userId)||userId == null)  throw new RestException(HttpStatus.NOT_FOUND, "유저아이디 정보는 필수입니다");
+        if(" ".equals(favRepository)||"".equals(favRepository)||favRepository == null)  throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 정보는 필수입니다");
+        if(" ".equals(branch)||"".equals(branch)||branch == null)  throw new RestException(HttpStatus.NOT_FOUND, "브랜치 정보는 필수입니다");
+
         User user = new User();
         user.setId(userId);
         user.setFav_repository(favRepository+"/branches/"+branch);
@@ -54,7 +58,7 @@ public class SaveController {
     public static String getUpdatedAt(String url){
         String mono = WebClient.create().get()
             .uri(url)
-            .header("Authorization", "token tempvalue")
+            .header("Authorization", "token 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")
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, response -> {
                 throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 혹은 브랜치 정보가 이상합니다");
