@@ -9,9 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.OffsetDateTime;
@@ -27,7 +25,7 @@ public class SaveController {
         this.saveService = saveService;
     }
 
-    @PostMapping("/save")
+    @PostMapping("save")
     public User create(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch) {
         if(" ".equals(userId)||"".equals(userId)||userId == null)  throw new RestException(HttpStatus.NOT_FOUND, "유저아이디 정보는 필수입니다");
         if(" ".equals(favRepository)||"".equals(favRepository)||favRepository == null)  throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 정보는 필수입니다");
@@ -47,6 +45,11 @@ public class SaveController {
         return user; //스프링이 자동으로 JSON타입으로 반환해서 전달한다.*/
     }
 
+    @GetMapping("search")
+    public String helloApi(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch){
+        return "test";
+    }
+
     public static String getUrlParser(String fav_repository,String branch){
         int index = fav_repository.indexOf("github");
         String url = fav_repository.substring(index);
@@ -58,7 +61,7 @@ public class SaveController {
     public static String getUpdatedAt(String url){
         String mono = WebClient.create().get()
             .uri(url)
-            .header("Authorization", "token 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")
+            .header("Authorization", "token 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")
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, response -> {
                 throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 혹은 브랜치 정보가 이상합니다");
