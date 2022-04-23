@@ -15,11 +15,11 @@ public class StorageService {
     }
 
     public String join(Storage storage){
-        if(!checkRepository(storage).isPresent()) storageRepository.save(storage);
+        if(!findRepository(storage).isPresent()) storageRepository.save(storage);
         return storage.getFav_repository();
     }
 
-    public Optional<Storage> checkRepository(Storage storage){
+    public Optional<Storage> findRepository(Storage storage){
         return storageRepository.findById(storage.getFav_repository());
     }
 

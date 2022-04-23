@@ -9,12 +9,16 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @RestController
 public class SaveController {
@@ -27,9 +31,7 @@ public class SaveController {
 
     @PostMapping("save")
     public User create(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch) {
-        if(" ".equals(userId)||"".equals(userId)||userId == null)  throw new RestException(HttpStatus.NOT_FOUND, "유저아이디 정보는 필수입니다");
-        if(" ".equals(favRepository)||"".equals(favRepository)||favRepository == null)  throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 정보는 필수입니다");
-        if(" ".equals(branch)||"".equals(branch)||branch == null)  throw new RestException(HttpStatus.NOT_FOUND, "브랜치 정보는 필수입니다");
+        parameterCheck(userId,favRepository,branch);
 
         User user = new User();
         user.setId(userId);
@@ -46,8 +48,19 @@ public class SaveController {
     }
 
     @GetMapping("search")
-    public String helloApi(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch){
-        return "test";
+    public Optional<User> helloApi(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch){
+        parameterCheck(userId,favRepository,branch);
+        User user = new User();
+        user.setId(userId);
+        user.setFav_repository(favRepository+"/branches/"+branch);
+        Optional<User> returnUser= saveService.search(user);
+        return returnUser;
+    }
+
+    public static void parameterCheck(String userId,String favRepository,String branch){
+        if(" ".equals(userId)||"".equals(userId)||userId == null)  throw new RestException(HttpStatus.NOT_FOUND, "유저아이디 정보는 필수입니다");
+        if(" ".equals(favRepository)||"".equals(favRepository)||favRepository == null)  throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 정보는 필수입니다");
+        if(" ".equals(branch)||"".equals(branch)||branch == null)  throw new RestException(HttpStatus.NOT_FOUND, "브랜치 정보는 필수입니다");
     }
 
     public static String getUrlParser(String fav_repository,String branch){
@@ -61,7 +74,7 @@ public class SaveController {
     public static String getUpdatedAt(String url){
         String mono = WebClient.create().get()
             .uri(url)
-            .header("Authorization", "token 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")
+            //.header("Authorization", "token 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")
             .retrieve()
             .onStatus(HttpStatus::is4xxClientError, response -> {
                 throw new RestException(HttpStatus.NOT_FOUND, "레포지토리 혹은 브랜치 정보가 이상합니다");

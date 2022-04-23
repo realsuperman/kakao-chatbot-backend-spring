@@ -20,12 +20,12 @@ public class UserService {
     }
 
     public String join(User user){
-        if(checkUser(user).isPresent()) throw new RestException(HttpStatus.NOT_FOUND, "유저 정보가 존재합니다.");
+        if(findUser(user).isPresent()) throw new RestException(HttpStatus.NOT_FOUND, "유저 정보가 존재합니다.");
         userRepository.save(user);
         return user.getId();
     }
 
-    public Optional<User> checkUser(User user){
+    public Optional<User> findUser(User user){
         UserKey userKey = new UserKey();
         userKey.setId(user.getId());
         userKey.setFav_repository(user.getFav_repository());
