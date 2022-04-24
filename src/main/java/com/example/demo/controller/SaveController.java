@@ -39,7 +39,7 @@ public class SaveController {
         Storage storage = new Storage();
         storage.setFav_repository(favRepository+"/branches/"+branch);
         storage.setGit_api_address(getUrlParser(favRepository,branch));
-        storage.setGit_updated_at(getUpdatedAt(storage.getGit_api_address()));
+        storage.setGit_updated_at(getUpdatedAt(storage.getGit_api_address(),0));
         OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
         user.setUser_get_date(fmt.format(utc));
@@ -48,13 +48,16 @@ public class SaveController {
     }
 
     @GetMapping("search")
-    public Optional<User> helloApi(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch){
+    public String search(@RequestParam("id") String userId, @RequestParam("fav_repository") String favRepository, @RequestParam("branch") String branch){
         parameterCheck(userId,favRepository,branch);
         User user = new User();
         user.setId(userId);
         user.setFav_repository(favRepository+"/branches/"+branch);
         Optional<User> returnUser= saveService.search(user);
-        return returnUser;
+        return getUpdatedAt(returnUser.get().getGit_api_address(),1);
+
+        // url : https://api.github.com/repos/realsuperman/spring-project/commits
+        // params={'sha':branch 정보 : 예를들면 master,'since':timestampStr : 예를들면 2021-04-13T11:00:23Z(user_get_date)}
     }
 
     public static void parameterCheck(String userId,String favRepository,String branch){
@@ -71,7 +74,7 @@ public class SaveController {
         return url;
     }
 
-    public static String getUpdatedAt(String url){
+    public static String getUpdatedAt(String url,int mode){
         String mono = WebClient.create().get()
             .uri(url)
             //.header("Authorization", "token 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")
@@ -86,6 +89,7 @@ public class SaveController {
             .block();
         JSONParser parser = new JSONParser();
         try {
+            if(mode==1) return mono;
             JSONObject elem = (JSONObject) parser.parse(mono);
             elem = (JSONObject) elem.get("commit");
             elem = (JSONObject) elem.get("commit");
