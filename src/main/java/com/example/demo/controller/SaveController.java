@@ -4,6 +4,7 @@ import com.example.demo.aop.RestException;
 import com.example.demo.domain.Storage;
 import com.example.demo.domain.User;
 import com.example.demo.service.SaveService;
+import com.example.demo.service.UserService;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -23,10 +24,12 @@ import java.util.Optional;
 @RestController
 public class SaveController {
     private final SaveService saveService;
+    private final UserService userService;
 
     @Autowired // 스프링 컨테이너가 멤버 서비스를 가져와줌
-    public SaveController(SaveService saveService) {
+    public SaveController(SaveService saveService,UserService userService) {
         this.saveService = saveService;
+        this.userService = userService;
     }
 
     @PostMapping("save")
@@ -38,7 +41,7 @@ public class SaveController {
         user.setFav_repository(favRepository+"/branches/"+branch);
         Storage storage = new Storage();
         storage.setFav_repository(favRepository+"/branches/"+branch);
-        storage.setGit_api_address(getUrlParser(favRepository,branch));
+        storage.setGit_api_address(getUrlParser(favRepository,branch,0));
         storage.setGit_updated_at(getUpdatedAt(storage.getGit_api_address(),0));
         OffsetDateTime utc = OffsetDateTime.now(ZoneOffset.UTC);
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -53,11 +56,10 @@ public class SaveController {
         User user = new User();
         user.setId(userId);
         user.setFav_repository(favRepository+"/branches/"+branch);
-        Optional<User> returnUser= saveService.search(user);
-        return getUpdatedAt(returnUser.get().getGit_api_address(),1);
-
-        // url : https://api.github.com/repos/realsuperman/spring-project/commits
-        // params={'sha':branch 정보 : 예를들면 master,'since':timestampStr : 예를들면 2021-04-13T11:00:23Z(user_get_date)}
+        Optional<User> info =  userService.search(user); // 유저 정보가 존재하는지 체크
+        String result = getUpdatedAt(getUrlParser(favRepository,branch,1)+"?sha="+branch+"&since="+info.get().getUser_get_date(),1);
+        userService.updateGetDate(user);
+        return result;
     }
 
     public static void parameterCheck(String userId,String favRepository,String branch){
@@ -66,11 +68,14 @@ public class SaveController {
         if(" ".equals(branch)||"".equals(branch)||branch == null)  throw new RestException(HttpStatus.NOT_FOUND, "브랜치 정보는 필수입니다");
     }
 
-    public static String getUrlParser(String fav_repository,String branch){
+    public static String getUrlParser(String fav_repository,String branch,int mode){
         int index = fav_repository.indexOf("github");
         String url = fav_repository.substring(index);
         index = url.indexOf("/");
-        url = "https://api.github.com/repos"+url.substring(index)+"/branches/"+branch;
+
+        url = "https://api.github.com/repos"+url.substring(index);
+        if(mode==0) url += "/branches/"+branch;
+        else url += "/commits";
         return url;
     }
 
@@ -87,9 +92,10 @@ public class SaveController {
             })
             .bodyToMono(String.class)
             .block();
+        if(mode==1) return mono;
+
         JSONParser parser = new JSONParser();
         try {
-            if(mode==1) return mono;
             JSONObject elem = (JSONObject) parser.parse(mono);
             elem = (JSONObject) elem.get("commit");
             elem = (JSONObject) elem.get("commit");

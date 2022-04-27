@@ -18,7 +18,7 @@ public class User implements Serializable {
     private String id;
     @Id
     private String fav_repository;
-    @Transient
-    private String git_api_address;
+    //@Transient
+    //private String git_api_address;
     private String user_get_date;
 }
