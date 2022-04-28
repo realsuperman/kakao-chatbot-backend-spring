@@ -1,20 +1,39 @@
 package com.example.demo.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
+import java.util.Objects;
 
-@Data // equals hashCode 자동으로 생성해줌
-@NoArgsConstructor // 생성자 기본으로 만들어줌
-@AllArgsConstructor // 필드값을 모두 포함한 생성자를 자동 생성해준다
 public class UserKey implements Serializable {
     private String id;
     private String fav_repository;
-}
 
-/*
-       매칭하고자 하는 키를 담는 클래스이다(복합키를 다 클래스로 넣는다)
-       3개의 어노테이션을 달아준다
- */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserKey userKey = (UserKey) o;
+        return Objects.equals(id, userKey.id) &&
+                Objects.equals(fav_repository, userKey.fav_repository);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, fav_repository);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getFav_repository() {
+        return fav_repository;
+    }
+
+    public void setFav_repository(String fav_repository) {
+        this.fav_repository = fav_repository;
+    }
+}
