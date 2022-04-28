@@ -58,7 +58,7 @@ public class SaveController {
         user.setFav_repository(favRepository+"/branches/"+branch);
         Optional<User> info =  userService.search(user); // 유저 정보가 존재하는지 체크
         String result = getUpdatedAt(getUrlParser(favRepository,branch,1)+"?sha="+branch+"&since="+info.get().getUser_get_date(),1);
-        userService.updateGetDate(user);
+        if(!result.equals("[]")) userService.updateGetDate(user);
         return result;
     }
 
