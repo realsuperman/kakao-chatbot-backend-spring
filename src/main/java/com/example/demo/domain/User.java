@@ -1,44 +1,40 @@
 package com.example.demo.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
-import java.io.Serializable;
+import lombok.*;
+
+import javax.persistence.*;
+import java.util.Set;
 
 @Entity
-@Table(name="user")
-@IdClass(UserKey.class) // 키를 따로 복합키 클래스로 사용한다고 지정
-public class User implements Serializable {
+@Table(name = "user")
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
+
     @Id
-    private String id;
-    @Id
-    private String fav_repository;
-    //@Transient
-    //private String git_api_address;
-    private String user_get_date;
+    @Column(name = "user_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long userId;
 
-    public String getId() {
-        return id;
-    }
+    @Column(name = "username", length = 50, unique = true)
+    private String username;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    @Column(name = "password", length = 100)
+    private String password;
 
-    public String getFav_repository() {
-        return fav_repository;
-    }
+    @Column(name = "nickname", length = 50)
+    private String nickname;
 
-    public void setFav_repository(String fav_repository) {
-        this.fav_repository = fav_repository;
-    }
+    @Column(name = "activated")
+    private boolean activated;
 
-    public String getUser_get_date() {
-        return user_get_date;
-    }
-
-    public void setUser_get_date(String user_get_date) {
-        this.user_get_date = user_get_date;
-    }
+    @ManyToMany
+    @JoinTable(
+            name = "user_authority",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")})
+    private Set<Authority> authorities;
 }
